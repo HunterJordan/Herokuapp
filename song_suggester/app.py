@@ -2,7 +2,7 @@
 import os
 from flask import Flask, render_template, request
 from .model import DB, Song
-from .spotify_client import SpotifyAPI
+from .spotify_client import *
 from .app import *
 
 
@@ -42,13 +42,18 @@ def create_app():
             song_name = request.form["song_name"]
             artist_name = request.form["artist_name"]
 
-
-
-
-
-
-        resp = Song.query.limit(5).all()
-
+            ids = retrieve_spotify_ids(song_name, artist_name)
+            if ids and len(ids) == 2:
+                artist_id = ids[0]
+                song_id = ids[1]
+                # Returns EMPYT ARRAY:)
+                audio_features = retrieve_audio_features(song_id)
+                genre_list = retrieve_genres(artist_name)
+                # Returns EMPYT ARRAY:)
+                recommend_list = spotipy_recs(song_id, limit=3) # nested list
+                # Retunrs EMPTY ARRAY :()
+                resp = Song.query.limit(5).all()
         return render_template(
             'predict.html', title = 'home', recommended = resp)
     return app
+
